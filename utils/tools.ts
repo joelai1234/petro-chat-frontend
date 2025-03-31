@@ -24,3 +24,9 @@ export const addFileInfos = (list: ThoughtItem[], messageFiles: VisionFile[]) =>
     return item
   })
 }
+
+export const isHtmlString = (str: string) => {
+  const parser = new DOMParser()
+  const doc = parser.parseFromString(str, 'text/html')
+  return Array.from(doc.body.childNodes).some(node => node.nodeType === 1)
+}

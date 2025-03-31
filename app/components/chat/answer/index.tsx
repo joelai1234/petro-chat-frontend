@@ -1,19 +1,21 @@
 'use client'
 import type { FC } from 'react'
 import React from 'react'
-import { HandThumbDownIcon, HandThumbUpIcon } from '@heroicons/react/24/outline'
+import { ArrowDownTrayIcon, EyeIcon, HandThumbDownIcon, HandThumbUpIcon } from '@heroicons/react/24/outline'
 import { useTranslation } from 'react-i18next'
 import LoadingAnim from '../loading-anim'
 import type { FeedbackFunc } from '../type'
 import s from '../style.module.css'
 import ImageGallery from '../../base/image-gallery'
 import Thought from '../thought'
+import Button from '../../base/button'
 import { randomString } from '@/utils/string'
 import type { ChatItem, MessageRating, VisionFile } from '@/types/app'
 import Tooltip from '@/app/components/base/tooltip'
 import WorkflowProcess from '@/app/components/workflow/workflow-process'
 import { Markdown } from '@/app/components/base/markdown'
 import type { Emoji } from '@/types/tools'
+import { isHtmlString } from '@/utils/tools'
 
 const OperationBtn = ({ innerContent, onClick, className }: { innerContent: React.ReactNode; onClick?: () => void; className?: string }) => (
   <div
@@ -49,7 +51,7 @@ export const EditIconSolid: FC<{ className?: string }> = ({ className }) => {
 }
 
 const IconWrapper: FC<{ children: React.ReactNode | string }> = ({ children }) => {
-  return <div className={'rounded-lg h-6 w-6 flex items-center justify-center hover:bg-gray-100'}>
+  return <div className={'flex justify-center items-center w-6 h-6 rounded-lg hover:bg-gray-100'}>
     {children}
   </div>
 }
@@ -72,6 +74,7 @@ const Answer: FC<IAnswerProps> = ({
 }) => {
   const { id, content, feedback, agent_thoughts, workflowProcess } = item
   const isAgentMode = !!agent_thoughts && agent_thoughts.length > 0
+  const isHtml = content ? isHtmlString(content) : false
 
   const { t } = useTranslation()
 
@@ -101,7 +104,7 @@ const Answer: FC<IAnswerProps> = ({
             await onFeedback?.(id, { rating: null })
           }}
         >
-          <div className={`${ratingIconClassname} rounded-lg h-6 w-6 flex items-center justify-center`}>
+          <div className={`flex justify-center items-center w-6 h-6 rounded-lg ${ratingIconClassname}`}>
             <RatingIcon isLike={isLike} />
           </div>
         </div>
@@ -165,6 +168,28 @@ const Answer: FC<IAnswerProps> = ({
     </div>
   )
 
+  const renderContent = () => {
+    if (isHtml) {
+      return (
+        <div className="flex flex-col gap-3">
+          <div className="text-sm text-gray-900">Here is the filled-out form. You can download it using the link below:</div>
+          <div className="flex gap-2 items-center">
+            <Button className="flex gap-2 items-center text-sm text-gray-900 bg-white">
+              <span>form.pdf</span>
+              <ArrowDownTrayIcon className="w-5 h-5" />
+            </Button>
+            <Button className="flex gap-2 items-center text-sm text-gray-900 bg-white">
+              <EyeIcon className="w-5 h-5" />
+              <span>Preview</span>
+            </Button>
+          </div>
+        </div>
+      )
+    }
+
+    return isAgentMode ? agentModeAnswer : <Markdown content={content} />
+  }
+
   return (
     <div key={id}>
       <div className='flex items-start'>
@@ -183,15 +208,11 @@ const Answer: FC<IAnswerProps> = ({
               )}
               {(isResponding && (isAgentMode ? (!content && (agent_thoughts || []).filter(item => !!item.thought || !!item.tool).length === 0) : !content))
                 ? (
-                  <div className='flex items-center justify-center w-6 h-5'>
+                  <div className='flex justify-center items-center w-6 h-5'>
                     <LoadingAnim type='text' />
                   </div>
                 )
-                : (isAgentMode
-                  ? agentModeAnswer
-                  : (
-                    <Markdown content={content} />
-                  ))}
+                : renderContent()}
             </div>
             <div className='absolute top-[-14px] right-[-14px] flex flex-row justify-end gap-1'>
               {!feedbackDisabled && !item.feedbackDisabled && renderItemOperation()}

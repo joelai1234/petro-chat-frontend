@@ -610,6 +610,7 @@ const Main: FC<IMainProps> = () => {
       return null
     return (
       <Sidebar
+        isMobile={!!previewHtml || isMobile}
         list={conversationList}
         onCurrentIdChange={handleConversationIdChange}
         currentId={currConversationId}
@@ -627,17 +628,20 @@ const Main: FC<IMainProps> = () => {
   return (
     <div className='bg-gray-100'>
       <div className={cn('flex h-screen', previewHtml && 'flex-row')}>
-        <div className={cn('flex flex-col', previewHtml ? 'w-[480px]' : 'w-full')}>
+        <div className={cn('flex flex-col', previewHtml ? 'w-[390px]' : 'w-full')}>
           <Header
             title={APP_INFO.title}
-            isMobile={isMobile}
+            isMobile={previewHtml ? true : isMobile}
             onShowSideBar={showSidebar}
             onCreateNewChat={() => handleConversationIdChange('-1')}
           />
-          <div className="flex overflow-hidden flex-grow bg-white rounded-t-2xl">
+          <div className={cn(
+            'flex overflow-hidden flex-grow bg-white rounded-t-2xl',
+            previewHtml && 'mobile-layout',
+          )}>
             {/* sidebar */}
-            {!isMobile && renderSidebar()}
-            {isMobile && isShowSidebar && (
+            {(!previewHtml && !isMobile) && renderSidebar()}
+            {(isMobile || previewHtml) && isShowSidebar && (
               <div className='fixed inset-0 z-50'
                 style={{ backgroundColor: 'rgba(35, 56, 118, 0.2)' }}
                 onClick={hideSidebar}
@@ -662,7 +666,10 @@ const Main: FC<IMainProps> = () => {
               />
 
               {hasSetInputs && (
-                <div className={cn('relative grow h-[200px] max-w-full mobile:w-full pb-[66px] mx-auto mb-3.5 overflow-hidden', previewHtml ? 'pc:w-full px-3.5' : 'pc:w-[794px]')}>
+                <div className={cn(
+                  'relative grow h-[200px] max-w-full pb-[66px] mx-auto mb-3.5 overflow-hidden',
+                  previewHtml ? 'w-full px-3.5' : 'pc:w-[794px] mobile:w-full',
+                )}>
                   <div className='overflow-y-auto h-full' ref={chatListDomRef}>
                     <Chat
                       chatList={chatList}
@@ -681,8 +688,8 @@ const Main: FC<IMainProps> = () => {
         </div>
 
         {previewHtml && (
-          <div className="overflow-y-auto flex-1 h-screen bg-white border-l border-gray-100">
-            <div className="flex sticky top-0 justify-between items-center p-4 bg-white border-b border-gray-100">
+          <div className="flex overflow-y-auto flex-col flex-1 h-screen bg-white border-l border-gray-100">
+            <div className="flex sticky top-0 justify-between items-center px-4 py-2 bg-white border-b border-gray-100">
               <h3 className="text-lg font-medium">Preview</h3>
               <button
                 onClick={() => setPreviewHtml('')}
@@ -693,10 +700,12 @@ const Main: FC<IMainProps> = () => {
                 </svg>
               </button>
             </div>
-            <div className="p-4">
-              <div
-                className="preview-content"
-                dangerouslySetInnerHTML={{ __html: previewHtml }}
+            <div className="flex-grow">
+              <iframe
+                className="w-full h-full border-0 preview-content"
+                srcDoc={previewHtml}
+                sandbox="allow-same-origin allow-scripts"
+                title="Preview Content"
               />
             </div>
           </div>

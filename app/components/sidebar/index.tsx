@@ -21,6 +21,7 @@ export type ISidebarProps = {
   currentId: string
   onCurrentIdChange: (id: string) => void
   list: ConversationItem[]
+  isMobile: boolean
 }
 
 const Sidebar: FC<ISidebarProps> = ({
@@ -28,18 +29,24 @@ const Sidebar: FC<ISidebarProps> = ({
   currentId,
   onCurrentIdChange,
   list,
+  isMobile,
 }) => {
   const { t } = useTranslation()
   return (
     <div
-      className="shrink-0 flex flex-col overflow-y-auto bg-white pc:w-[244px] tablet:w-[192px] mobile:w-[240px]  border-r border-gray-200 tablet:h-[calc(100vh_-_3rem)] mobile:h-screen"
+      className={classNames(
+        'flex overflow-y-auto flex-col bg-white border-r border-gray-200 shrink-0',
+        isMobile
+          ? 'h-screen w-[240px]'
+          : 'pc:w-[244px] tablet:w-[192px] tablet:h-[calc(100vh_-_3rem)]',
+      )}
     >
       {list.length < MAX_CONVERSATION_LENTH && (
         <div className="flex flex-shrink-0 p-4 !pb-0">
           <Button
             onClick={() => { onCurrentIdChange('-1') }}
             className="group block w-full flex-shrink-0 !justify-start !h-9 text-primary-600 items-center text-sm">
-            <PencilSquareIcon className="mr-2 h-4 w-4" /> {t('app.chat.newChat')}
+            <PencilSquareIcon className="mr-2 w-4 h-4" /> {t('app.chat.newChat')}
           </Button>
         </div>
       )}
@@ -57,7 +64,7 @@ const Sidebar: FC<ISidebarProps> = ({
                 isCurrent
                   ? 'bg-primary-50 text-primary-600'
                   : 'text-gray-700 hover:bg-gray-100 hover:text-gray-700',
-                'group flex items-center rounded-md px-2 py-2 text-sm font-medium cursor-pointer',
+                'flex items-center px-2 py-2 text-sm font-medium rounded-md cursor-pointer group',
               )}
             >
               <ItemIcon
@@ -65,7 +72,7 @@ const Sidebar: FC<ISidebarProps> = ({
                   isCurrent
                     ? 'text-primary-600'
                     : 'text-gray-400 group-hover:text-gray-500',
-                  'mr-3 h-5 w-5 flex-shrink-0',
+                  'flex-shrink-0 mr-3 w-5 h-5',
                 )}
                 aria-hidden="true"
               />
@@ -75,10 +82,10 @@ const Sidebar: FC<ISidebarProps> = ({
         })}
       </nav>
       {/* <a className="flex flex-shrink-0 p-4" href="https://langgenius.ai/" target="_blank">
-        <Card><div className="flex flex-row items-center"><ChatBubbleOvalLeftEllipsisSolidIcon className="text-primary-600 h-6 w-6 mr-2" /><span>LangGenius</span></div></Card>
+        <Card><div className="flex flex-row items-center"><ChatBubbleOvalLeftEllipsisSolidIcon className="mr-2 w-6 h-6 text-primary-600" /><span>LangGenius</span></div></Card>
       </a> */}
       <div className="flex flex-shrink-0 pr-4 pb-4 pl-4">
-        <div className="text-gray-400 font-normal text-xs">© {copyRight} {(new Date()).getFullYear()}</div>
+        <div className="text-xs font-normal text-gray-400">© {copyRight} {(new Date()).getFullYear()}</div>
       </div>
     </div>
   )

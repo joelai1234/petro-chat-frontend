@@ -27,6 +27,7 @@ export type IChatProps = {
    */
   isHideSendInput?: boolean
   onFeedback?: FeedbackFunc
+  onPreview?: (html: string) => void
   checkCanSend?: () => boolean
   onSend?: (message: string, files: VisionFile[]) => void
   useCurrentUserAvatar?: boolean
@@ -40,6 +41,7 @@ const Chat: FC<IChatProps> = ({
   feedbackDisabled = false,
   isHideSendInput = false,
   onFeedback,
+  onPreview,
   checkCanSend,
   onSend = () => { },
   useCurrentUserAvatar,
@@ -129,6 +131,7 @@ const Chat: FC<IChatProps> = ({
               item={item}
               feedbackDisabled={feedbackDisabled}
               onFeedback={onFeedback}
+              onPreview={onPreview}
               isResponding={isResponding && isLast}
             />
           }
@@ -150,7 +153,7 @@ const Chat: FC<IChatProps> = ({
               {
                 visionConfig?.enabled && (
                   <>
-                    <div className='absolute bottom-2 left-2 flex items-center'>
+                    <div className='flex absolute bottom-2 left-2 items-center'>
                       <ChatImageUploader
                         settings={visionConfig}
                         onUpload={onUpload}
@@ -181,7 +184,7 @@ const Chat: FC<IChatProps> = ({
                 onKeyDown={handleKeyDown}
                 autoSize
               />
-              <div className="absolute bottom-2 right-2 flex items-center h-8">
+              <div className="flex absolute right-2 bottom-2 items-center h-8">
                 <div className={`${s.count} mr-4 h-5 leading-5 text-sm bg-gray-50 text-gray-500`}>{query.trim().length}</div>
                 <Tooltip
                   selector='send-tip'

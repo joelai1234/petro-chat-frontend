@@ -5,6 +5,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import produce, { setAutoFreeze } from 'immer'
 import { useBoolean, useGetState } from 'ahooks'
+import { cn } from '../lib/utils'
 import useConversation from '@/hooks/use-conversation'
 import Toast from '@/app/components/base/toast'
 import Sidebar from '@/app/components/sidebar'
@@ -40,6 +41,7 @@ const Main: FC<IMainProps> = () => {
   const [isUnknownReason, setIsUnknownReason] = useState<boolean>(false)
   const [promptConfig, setPromptConfig] = useState<PromptConfig | null>(null)
   const [inited, setInited] = useState<boolean>(false)
+  const [previewHtml, setPreviewHtml] = useState<string>('')
   // in mobile, show sidebar by click button
   const [isShowSidebar, { setTrue: showSidebar, setFalse: hideSidebar }] = useBoolean(false)
   const [visionConfig, setVisionConfig] = useState<VisionSettings | undefined>({
@@ -599,6 +601,10 @@ const Main: FC<IMainProps> = () => {
     notify({ type: 'success', message: t('common.api.success') })
   }
 
+  const handlePreview = (html: string) => {
+    setPreviewHtml(html)
+  }
+
   const renderSidebar = () => {
     if (!APP_ID || !APP_INFO || !promptConfig)
       return null
@@ -620,55 +626,81 @@ const Main: FC<IMainProps> = () => {
 
   return (
     <div className='bg-gray-100'>
-      <Header
-        title={APP_INFO.title}
-        isMobile={isMobile}
-        onShowSideBar={showSidebar}
-        onCreateNewChat={() => handleConversationIdChange('-1')}
-      />
-      <div className="flex rounded-t-2xl bg-white overflow-hidden">
-        {/* sidebar */}
-        {!isMobile && renderSidebar()}
-        {isMobile && isShowSidebar && (
-          <div className='fixed inset-0 z-50'
-            style={{ backgroundColor: 'rgba(35, 56, 118, 0.2)' }}
-            onClick={hideSidebar}
-          >
-            <div className='inline-block' onClick={e => e.stopPropagation()}>
-              {renderSidebar()}
+      <div className={cn('flex h-screen', previewHtml && 'flex-row')}>
+        <div className={cn('flex flex-col', previewHtml ? 'w-[480px]' : 'w-full')}>
+          <Header
+            title={APP_INFO.title}
+            isMobile={isMobile}
+            onShowSideBar={showSidebar}
+            onCreateNewChat={() => handleConversationIdChange('-1')}
+          />
+          <div className="flex overflow-hidden flex-grow bg-white rounded-t-2xl">
+            {/* sidebar */}
+            {!isMobile && renderSidebar()}
+            {isMobile && isShowSidebar && (
+              <div className='fixed inset-0 z-50'
+                style={{ backgroundColor: 'rgba(35, 56, 118, 0.2)' }}
+                onClick={hideSidebar}
+              >
+                <div className='inline-block' onClick={e => e.stopPropagation()}>
+                  {renderSidebar()}
+                </div>
+              </div>
+            )}
+            {/* main */}
+            <div className='flex-grow flex flex-col h-[calc(100vh_-_3rem)] overflow-y-auto'>
+              <ConfigSence
+                conversationName={conversationName}
+                hasSetInputs={hasSetInputs}
+                isPublicVersion={isShowPrompt}
+                siteInfo={APP_INFO}
+                promptConfig={promptConfig}
+                onStartChat={handleStartChat}
+                canEditInputs={canEditInputs}
+                savedInputs={currInputs as Record<string, any>}
+                onInputsChange={setCurrInputs}
+              />
+
+              {hasSetInputs && (
+                <div className={cn('relative grow h-[200px] max-w-full mobile:w-full pb-[66px] mx-auto mb-3.5 overflow-hidden', previewHtml ? 'pc:w-full px-3.5' : 'pc:w-[794px]')}>
+                  <div className='overflow-y-auto h-full' ref={chatListDomRef}>
+                    <Chat
+                      chatList={chatList}
+                      onSend={handleSend}
+                      onFeedback={handleFeedback}
+                      onPreview={handlePreview}
+                      isResponding={isResponding}
+                      checkCanSend={checkCanSend}
+                      visionConfig={visionConfig}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {previewHtml && (
+          <div className="overflow-y-auto flex-1 h-screen bg-white border-l border-gray-100">
+            <div className="flex sticky top-0 justify-between items-center p-4 bg-white border-b border-gray-100">
+              <h3 className="text-lg font-medium">Preview</h3>
+              <button
+                onClick={() => setPreviewHtml('')}
+                className="p-2 rounded-lg hover:bg-gray-100"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
+            <div className="p-4">
+              <div
+                className="preview-content"
+                dangerouslySetInnerHTML={{ __html: previewHtml }}
+              />
             </div>
           </div>
         )}
-        {/* main */}
-        <div className='flex-grow flex flex-col h-[calc(100vh_-_3rem)] overflow-y-auto'>
-          <ConfigSence
-            conversationName={conversationName}
-            hasSetInputs={hasSetInputs}
-            isPublicVersion={isShowPrompt}
-            siteInfo={APP_INFO}
-            promptConfig={promptConfig}
-            onStartChat={handleStartChat}
-            canEditInputs={canEditInputs}
-            savedInputs={currInputs as Record<string, any>}
-            onInputsChange={setCurrInputs}
-          ></ConfigSence>
-
-          {
-            hasSetInputs && (
-              <div className='relative grow h-[200px] pc:w-[794px] max-w-full mobile:w-full pb-[66px] mx-auto mb-3.5 overflow-hidden'>
-                <div className='h-full overflow-y-auto' ref={chatListDomRef}>
-                  <Chat
-                    chatList={chatList}
-                    onSend={handleSend}
-                    onFeedback={handleFeedback}
-                    isResponding={isResponding}
-                    checkCanSend={checkCanSend}
-                    visionConfig={visionConfig}
-                  />
-                </div>
-              </div>)
-          }
-        </div>
       </div>
     </div>
   )

@@ -61,6 +61,7 @@ type IAnswerProps = {
   item: ChatItem
   feedbackDisabled: boolean
   onFeedback?: FeedbackFunc
+  onPreview?: (html: string) => void
   isResponding?: boolean
   allToolIcons?: Record<string, string | Emoji>
 }
@@ -70,6 +71,7 @@ const Answer: FC<IAnswerProps> = ({
   item,
   feedbackDisabled = false,
   onFeedback,
+  onPreview,
   isResponding,
   allToolIcons,
 }) => {
@@ -252,7 +254,9 @@ const Answer: FC<IAnswerProps> = ({
                   </>
                 )}
             </Button>
-            <Button className="flex gap-2 items-center text-sm text-gray-900 bg-white">
+            <Button className="flex gap-2 items-center text-sm text-gray-900 bg-white"
+              onClick={() => onPreview?.(content)}
+            >
               <EyeIcon className="w-5 h-5" />
               <span>Preview</span>
             </Button>

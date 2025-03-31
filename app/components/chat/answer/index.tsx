@@ -1,8 +1,10 @@
 'use client'
 import type { FC } from 'react'
-import React from 'react'
+import React, { useRef } from 'react'
 import { ArrowDownTrayIcon, EyeIcon, HandThumbDownIcon, HandThumbUpIcon } from '@heroicons/react/24/outline'
 import { useTranslation } from 'react-i18next'
+import JsPDF from 'jspdf'
+import html2canvas from 'html2canvas-pro'
 import LoadingAnim from '../loading-anim'
 import type { FeedbackFunc } from '../type'
 import s from '../style.module.css'
@@ -167,14 +169,41 @@ const Answer: FC<IAnswerProps> = ({
       ))}
     </div>
   )
+  const contentRef = useRef<HTMLDivElement>(null)
 
   const renderContent = () => {
     if (isHtml) {
+      const handleDownload = async () => {
+        if (!contentRef.current || !content)
+          return
+
+        try {
+          const canvas = await html2canvas(contentRef.current, {
+            scale: 2,
+            useCORS: true,
+            logging: false,
+          })
+
+          const imgData = canvas.toDataURL('image/png')
+          const pdf = new JsPDF({
+            orientation: 'portrait',
+            unit: 'px',
+            format: [canvas.width, canvas.height],
+          })
+
+          pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height)
+          pdf.save('form.pdf')
+        }
+        catch (error) {
+          console.error('Error generating PDF:', error)
+        }
+      }
+
       return (
         <div className="flex flex-col gap-3">
-          <div className="text-sm text-gray-900">Here is the filled-out form. You can download it using the link below:</div>
+          <div ref={contentRef} dangerouslySetInnerHTML={{ __html: content }} className="text-sm text-gray-900" />
           <div className="flex gap-2 items-center">
-            <Button className="flex gap-2 items-center text-sm text-gray-900 bg-white">
+            <Button className="flex gap-2 items-center text-sm text-gray-900 bg-white" onClick={handleDownload}>
               <span>form.pdf</span>
               <ArrowDownTrayIcon className="w-5 h-5" />
             </Button>

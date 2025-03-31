@@ -1,16 +1,15 @@
 'use client'
 import type { FC } from 'react'
-import React, { useRef } from 'react'
+import React, { useState } from 'react'
 import { ArrowDownTrayIcon, EyeIcon, HandThumbDownIcon, HandThumbUpIcon } from '@heroicons/react/24/outline'
 import { useTranslation } from 'react-i18next'
-import JsPDF from 'jspdf'
-import html2canvas from 'html2canvas-pro'
 import LoadingAnim from '../loading-anim'
 import type { FeedbackFunc } from '../type'
 import s from '../style.module.css'
 import ImageGallery from '../../base/image-gallery'
 import Thought from '../thought'
 import Button from '../../base/button'
+import Spinner from '../../base/spinner'
 import { randomString } from '@/utils/string'
 import type { ChatItem, MessageRating, VisionFile } from '@/types/app'
 import Tooltip from '@/app/components/base/tooltip'
@@ -77,6 +76,7 @@ const Answer: FC<IAnswerProps> = ({
   const { id, content, feedback, agent_thoughts, workflowProcess } = item
   const isAgentMode = !!agent_thoughts && agent_thoughts.length > 0
   const isHtml = content ? isHtmlString(content) : false
+  const [isDownloading, setIsDownloading] = useState(false)
 
   const { t } = useTranslation()
 
@@ -169,43 +169,88 @@ const Answer: FC<IAnswerProps> = ({
       ))}
     </div>
   )
-  const contentRef = useRef<HTMLDivElement>(null)
 
   const renderContent = () => {
     if (isHtml) {
       const handleDownload = async () => {
-        if (!contentRef.current || !content)
+        if (!content || isDownloading)
           return
 
+        setIsDownloading(true)
         try {
-          const canvas = await html2canvas(contentRef.current, {
-            scale: 2,
-            useCORS: true,
-            logging: false,
+          // Call the Puppeteer API endpoint
+          const response = await fetch('/api/pdf', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ html: content }),
           })
 
-          const imgData = canvas.toDataURL('image/png')
-          const pdf = new JsPDF({
-            orientation: 'portrait',
-            unit: 'px',
-            format: [canvas.width, canvas.height],
-          })
+          const result = await response.json()
 
-          pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height)
-          pdf.save('form.pdf')
+          if (!response.ok || !result.success)
+            throw new Error(result.error || 'Failed to generate PDF')
+
+          // Ensure we have valid base64 data
+          if (!result.data)
+            throw new Error('No PDF data received')
+
+          // Convert base64 to Blob
+          try {
+            const binaryString = window.atob(result.data)
+            const bytes = new Uint8Array(binaryString.length)
+            for (let i = 0; i < binaryString.length; i++)
+              bytes[i] = binaryString.charCodeAt(i)
+
+            const pdfBlob = new Blob([bytes], { type: 'application/pdf' })
+
+            // Create download link
+            const url = window.URL.createObjectURL(pdfBlob)
+            const link = document.createElement('a')
+            link.href = url
+            link.download = 'form.pdf'
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+            window.URL.revokeObjectURL(url)
+          }
+          catch (e) {
+            console.error('Error processing PDF data:', e)
+            throw new Error('Failed to process PDF data')
+          }
         }
         catch (error) {
           console.error('Error generating PDF:', error)
+          // You might want to show an error message to the user here
+        }
+        finally {
+          setIsDownloading(false)
         }
       }
 
       return (
         <div className="flex flex-col gap-3">
-          <div ref={contentRef} dangerouslySetInnerHTML={{ __html: content }} className="text-sm text-gray-900" />
+          <div className="text-sm text-gray-900">Here is the filled-out form. You can download it using the link below:</div>
           <div className="flex gap-2 items-center">
-            <Button className="flex gap-2 items-center text-sm text-gray-900 bg-white" onClick={handleDownload}>
-              <span>form.pdf</span>
-              <ArrowDownTrayIcon className="w-5 h-5" />
+            <Button
+              className={`flex gap-2 items-center text-sm text-gray-900 bg-white ${isDownloading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              onClick={handleDownload}
+              disabled={isDownloading}
+            >
+              {isDownloading
+                ? (
+                  <>
+                    <span>Generating PDF</span>
+                    <Spinner loading={true} className='text-gray-900 !h-3 !w-3 !border-2 !ml-1' />
+                  </>
+                )
+                : (
+                  <>
+                    <span>form.pdf</span>
+                    <ArrowDownTrayIcon className="w-5 h-5" />
+                  </>
+                )}
             </Button>
             <Button className="flex gap-2 items-center text-sm text-gray-900 bg-white">
               <EyeIcon className="w-5 h-5" />

@@ -1,24 +1,37 @@
 import { NextResponse } from 'next/server'
-import puppeteer from 'puppeteer-core'
+import puppeteer from 'puppeteer'
+import puppeteerCore from 'puppeteer-core'
 import chromium from '@sparticuz/chromium-min'
 
 const chromiumPack = 'https://github.com/Sparticuz/chromium/releases/download/v121.0.0/chromium-v121.0.0-pack.tar'
+const isDev = process.env.NODE_ENV === 'development'
+
+async function getBrowser() {
+  if (isDev) {
+    return await puppeteer.launch({
+      headless: true,
+    })
+  }
+  else {
+    return await puppeteerCore.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath(chromiumPack),
+      headless: true,
+    })
+  }
+}
 
 export async function POST(req: Request) {
   try {
     const { html } = await req.json()
-
+    console.log('isDev', isDev)
     if (!html)
       return NextResponse.json({ error: 'HTML content is required' }, { status: 400 })
     console.log('start')
-    // Initialize browser with chromium
-    const browser = await puppeteer.launch({
-      args: chromium.args,
-      //   defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(chromiumPack),
-      headless: true,
-      //   ignoreHTTPSErrors: true,
-    })
+
+    const browser = await getBrowser()
+
     console.log('browser')
     const page = await browser.newPage()
     console.log('page')

@@ -34,6 +34,7 @@ export type IChatProps = {
   isResponding?: boolean
   controlClearQuery?: number
   visionConfig?: VisionSettings
+  suggestedQuestions?: string[]
 }
 
 const Chat: FC<IChatProps> = ({
@@ -48,7 +49,9 @@ const Chat: FC<IChatProps> = ({
   isResponding,
   controlClearQuery,
   visionConfig,
+  suggestedQuestions = [],
 }) => {
+  console.log('suggestedQuestions', suggestedQuestions)
   const { t } = useTranslation()
   const { notify } = Toast
   const isUseInputMethod = useRef(false)
@@ -133,6 +136,7 @@ const Chat: FC<IChatProps> = ({
               onFeedback={onFeedback}
               onPreview={onPreview}
               isResponding={isResponding && isLast}
+              onSend={onSend}
             />
           }
           return (

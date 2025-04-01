@@ -211,6 +211,7 @@ const Main: FC<IMainProps> = () => {
       isAnswer: true,
       feedbackDisabled: true,
       isOpeningStatement: isShowPrompt,
+      suggestedQuestions: openingSuggestedQuestions,
     }
     if (calculatedIntroduction)
       return [openStatement]
@@ -239,7 +240,8 @@ const Main: FC<IMainProps> = () => {
         const isNotNewConversation = conversations.some(item => item.id === _conversationId)
 
         // fetch new conversation info
-        const { user_input_form, opening_statement: introduction, file_upload, system_parameters }: any = appParams
+        const { user_input_form, opening_statement: introduction, file_upload, system_parameters, suggested_questions }: any = appParams
+        console.log('suggested_questions', suggested_questions)
         setLocaleOnClient(APP_INFO.default_language, true)
         setNewConversationInfo({
           name: t('app.chat.newChatDefaultName'),
@@ -254,6 +256,7 @@ const Main: FC<IMainProps> = () => {
           ...file_upload?.image,
           image_file_size_limit: system_parameters?.system_parameters || 0,
         })
+        setOpeningSuggestedQuestions(suggested_questions || [])
         setConversationList(conversations as ConversationItem[])
 
         if (isNotNewConversation)
@@ -679,6 +682,7 @@ const Main: FC<IMainProps> = () => {
                       isResponding={isResponding}
                       checkCanSend={checkCanSend}
                       visionConfig={visionConfig}
+                      suggestedQuestions={openingSuggestedQuestions}
                     />
                   </div>
                 </div>

@@ -3,6 +3,7 @@ import type { FC } from 'react'
 import React, { useState } from 'react'
 import { ArrowDownTrayIcon, EyeIcon, HandThumbDownIcon, HandThumbUpIcon } from '@heroicons/react/24/outline'
 import { useTranslation } from 'react-i18next'
+import classNames from 'classnames'
 import LoadingAnim from '../loading-anim'
 import type { FeedbackFunc } from '../type'
 import s from '../style.module.css'
@@ -64,6 +65,7 @@ type IAnswerProps = {
   onPreview?: (html: string) => void
   isResponding?: boolean
   allToolIcons?: Record<string, string | Emoji>
+  onSend?: (message: string, files: VisionFile[]) => void
 }
 
 // The component needs to maintain its own state to control whether to display input component
@@ -74,6 +76,7 @@ const Answer: FC<IAnswerProps> = ({
   onPreview,
   isResponding,
   allToolIcons,
+  onSend,
 }) => {
   const { id, content, feedback, agent_thoughts, workflowProcess } = item
   const isAgentMode = !!agent_thoughts && agent_thoughts.length > 0
@@ -279,7 +282,7 @@ const Answer: FC<IAnswerProps> = ({
           }
         </div>
         <div className={`${s.answerWrap}`}>
-          <div className={`${s.answer} relative text-sm text-gray-900`}>
+          <div className={classNames(s.answer, 'relative text-sm text-gray-900')}>
             <div className={`ml-2 py-3 px-4 bg-gray-100 rounded-tr-2xl rounded-b-2xl ${workflowProcess && 'min-w-[480px]'}`}>
               {workflowProcess && (
                 <WorkflowProcess data={workflowProcess} hideInfo />
@@ -290,7 +293,32 @@ const Answer: FC<IAnswerProps> = ({
                     <LoadingAnim type='text' />
                   </div>
                 )
-                : renderContent()}
+                : (
+                  <>
+                    {item.isOpeningStatement && (
+                      <div className='mb-4'>
+                        <Markdown content={item.content} />
+                      </div>
+                    )}
+                    {!item.isOpeningStatement && (
+                      <Markdown content={item.content} />
+                    )}
+                    {/* Add suggested questions */}
+                    {item.suggestedQuestions && item.suggestedQuestions.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-4">
+                        {item.suggestedQuestions.map((question, index) => (
+                          <button
+                            key={index}
+                            className="px-3 py-2 text-sm text-gray-700 bg-white rounded-lg border border-gray-200 transition-colors hover:bg-gray-100"
+                            onClick={() => onSend?.(question, [])}
+                          >
+                            {question}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
             </div>
             <div className='absolute top-[-14px] right-[-14px] flex flex-row justify-end gap-1'>
               {!feedbackDisabled && !item.feedbackDisabled && renderItemOperation()}

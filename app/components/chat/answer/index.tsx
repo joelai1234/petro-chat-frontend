@@ -268,7 +268,36 @@ const Answer: FC<IAnswerProps> = ({
       )
     }
 
-    return isAgentMode ? agentModeAnswer : <Markdown content={content} />
+    if (isAgentMode)
+      return agentModeAnswer
+
+    return (
+      <>
+        {item.isOpeningStatement
+          ? (
+            <div className='mb-4'>
+              <Markdown content={content} />
+            </div>
+          )
+          : (
+            <Markdown content={content} />
+          )}
+        {/* Add suggested questions */}
+        {item.suggestedQuestions && item.suggestedQuestions.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-4">
+            {item.suggestedQuestions.map((question, index) => (
+              <button
+                key={index}
+                className="px-3 py-2 text-sm text-gray-700 bg-white rounded-lg border border-gray-200 transition-colors hover:bg-gray-100"
+                onClick={() => onSend?.(question, [])}
+              >
+                {question}
+              </button>
+            ))}
+          </div>
+        )}
+      </>
+    )
   }
 
   return (
@@ -293,32 +322,7 @@ const Answer: FC<IAnswerProps> = ({
                     <LoadingAnim type='text' />
                   </div>
                 )
-                : (
-                  <>
-                    {item.isOpeningStatement && (
-                      <div className='mb-4'>
-                        <Markdown content={item.content} />
-                      </div>
-                    )}
-                    {!item.isOpeningStatement && (
-                      <Markdown content={item.content} />
-                    )}
-                    {/* Add suggested questions */}
-                    {item.suggestedQuestions && item.suggestedQuestions.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mt-4">
-                        {item.suggestedQuestions.map((question, index) => (
-                          <button
-                            key={index}
-                            className="px-3 py-2 text-sm text-gray-700 bg-white rounded-lg border border-gray-200 transition-colors hover:bg-gray-100"
-                            onClick={() => onSend?.(question, [])}
-                          >
-                            {question}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </>
-                )}
+                : renderContent()}
             </div>
             <div className='absolute top-[-14px] right-[-14px] flex flex-row justify-end gap-1'>
               {!feedbackDisabled && !item.feedbackDisabled && renderItemOperation()}

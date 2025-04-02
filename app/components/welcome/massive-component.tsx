@@ -23,7 +23,7 @@ export const AppInfoComp: FC<{ siteInfo: AppInfo }> = ({ siteInfo }) => {
 export const PromptTemplate: FC<{ html: string }> = ({ html }) => {
   return (
     <div
-      className={' box-border text-sm text-gray-700'}
+      className={'box-border text-sm text-gray-700'}
       dangerouslySetInnerHTML={{ __html: html }}
     ></div>
   )
@@ -60,7 +60,7 @@ export const EditBtn = ({ className, onClick }: { className?: string; onClick: (
 
   return (
     <div
-      className={cn('px-2 flex space-x-1 items-center rounded-md  cursor-pointer', className)}
+      className={cn('flex items-center px-2 space-x-1 rounded-md cursor-pointer', className)}
       onClick={onClick}
     >
       <PencilIcon className='w-3 h-3' />

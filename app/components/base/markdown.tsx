@@ -7,9 +7,9 @@ import RemarkGfm from 'remark-gfm'
 import SyntaxHighlighter from 'react-syntax-highlighter'
 import { atelierHeathLight } from 'react-syntax-highlighter/dist/esm/styles/hljs'
 
-export function Markdown(props: { content: string }) {
+export function Markdown({ content, theme = 'light' }: { content: string; theme?: 'light' | 'dark' }) {
   return (
-    <div className="markdown-body">
+    <div className={`markdown-body ${theme === 'dark' ? '!text-white' : ''}`}>
       <ReactMarkdown
         remarkPlugins={[RemarkMath, RemarkGfm, RemarkBreaks]}
         rehypePlugins={[
@@ -38,7 +38,7 @@ export function Markdown(props: { content: string }) {
         }}
         linkTarget={'_blank'}
       >
-        {props.content}
+        {content}
       </ReactMarkdown>
     </div>
   )

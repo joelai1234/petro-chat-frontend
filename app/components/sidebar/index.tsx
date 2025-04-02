@@ -55,7 +55,10 @@ const Sidebar: FC<ISidebarProps> = ({
           </Button>
         </div>
       )}
-      <nav className="mt-4 space-y-1 bg-white p-4 !pt-0">
+      <h3 className='px-4 pt-4 pb-2 text-sm font-semibold text-gray-700'>
+        Popular Queries
+      </h3>
+      <nav className="space-y-1 bg-white p-4 !pt-0">
         {defaultList.map((item) => {
           return (
             <div key={item.id}
@@ -72,9 +75,12 @@ const Sidebar: FC<ISidebarProps> = ({
           )
         })}
       </nav>
-      <div className='h-px bg-gray-200 shrink-0' />
+      {/* <div className='h-px bg-gray-200 shrink-0' /> */}
+      <h3 className='px-4 pb-2 text-sm font-semibold text-gray-700'>
+        Recent History
+      </h3>
       <nav className="overflow-y-auto flex-1 bg-white">
-        <div className='space-y-1 p-4 !pt-0 mt-4'>
+        <div className='space-y-1 p-4 !pt-0'>
           {list.map((item) => {
             const isCurrent = item.id === currentId
             const ItemIcon

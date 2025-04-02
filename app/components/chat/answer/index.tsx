@@ -17,7 +17,7 @@ import Tooltip from '@/app/components/base/tooltip'
 import WorkflowProcess from '@/app/components/workflow/workflow-process'
 import { Markdown } from '@/app/components/base/markdown'
 import type { Emoji } from '@/types/tools'
-import { isHtmlString } from '@/utils/tools'
+import { isUrlString } from '@/utils/tools'
 import { getFormTemplateFromUrl } from '@/utils/formTemplate'
 
 const OperationBtn = ({ innerContent, onClick, className }: { innerContent: React.ReactNode; onClick?: () => void; className?: string }) => (
@@ -81,7 +81,7 @@ const Answer: FC<IAnswerProps> = ({
 }) => {
   const { id, content, feedback, agent_thoughts, workflowProcess } = item
   const isAgentMode = !!agent_thoughts && agent_thoughts.length > 0
-  const isHtml = content ? isHtmlString(content) : false
+  const isUrl = content ? isUrlString(content) : false
   const [isDownloading, setIsDownloading] = useState(false)
 
   const { t } = useTranslation()
@@ -177,7 +177,7 @@ const Answer: FC<IAnswerProps> = ({
   )
 
   const renderContent = () => {
-    if (isHtml) {
+    if (isUrl) {
       const handleDownload = async () => {
         if (!content || isDownloading)
           return

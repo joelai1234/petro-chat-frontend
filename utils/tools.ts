@@ -30,3 +30,19 @@ export const isHtmlString = (str: string) => {
   const doc = parser.parseFromString(str, 'text/html')
   return Array.from(doc.body.childNodes).some(node => node.nodeType === 1)
 }
+
+export const isUrlString = (url: string) => {
+  try {
+    // Try to parse the URL
+    const parsedUrl = new URL(url)
+
+    // Check if the path matches /form/[name] pattern
+    const pathMatch = parsedUrl.pathname.match(/^\/form\/([^\/]+)$/)
+
+    return !!pathMatch
+  }
+  catch (error) {
+    // Return null if URL is invalid or any other error occurs
+    return false
+  }
+}

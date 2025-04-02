@@ -190,7 +190,10 @@ const Answer: FC<IAnswerProps> = ({
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ html: content }),
+            body: JSON.stringify({
+              html:
+                getFormTemplateFromUrl(content) || '',
+            }),
           })
 
           const result = await response.json()
@@ -260,7 +263,7 @@ const Answer: FC<IAnswerProps> = ({
             </Button>
             <Button className="flex gap-2 items-center text-sm text-gray-900 bg-white"
               onClick={() => onPreview?.(
-                getFormTemplateFromUrl(item.content) || '',
+                getFormTemplateFromUrl(content) || '',
               )}
             >
               <EyeIcon className="w-5 h-5" />

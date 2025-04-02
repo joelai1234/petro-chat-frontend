@@ -1012,7 +1012,7 @@ export const form714Template = `<html xmlns="http://www.w3.org/1999/xhtml" xmlns
             </tr> 
             <tr class="schedule-row">
                 <td class="xbrl line-number"><span class="sub-line-number">2</span></td>
-                <td class="xbrl description_items"><div class="sub-value sub-no-replacement">{name}</div></td>
+                <td class="xbrl description_items"><div class="sub-value sub-no-replacement"><%= name %></div></td>
                 <td class="description_items xbrl"><div class="sub-value sub-no-replacement">Conemaugh Plant</div></td>
                 <td class="numeric_items xbrl"><div class="sub-value sub-no-replacement"></div>2770</td>
                 <td class="numeric_items xbrl"><div class="sub-value sub-no-replacement"></div>2500</td>

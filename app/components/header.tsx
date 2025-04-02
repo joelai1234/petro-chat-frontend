@@ -28,10 +28,10 @@ const Header: FC<IHeaderProps> = ({
             <Bars3Icon className="w-4 h-4 text-gray-500" />
           </div>
         )
-        : <div></div>}
+        : null}
       <div className='flex items-center space-x-2'>
         <AppIcon size="small" />
-        <div className="text-sm font-bold text-gray-800">{title}</div>
+        <div className="font-bold text-gray-800 text">{title}</div>
       </div>
       {isMobile
         ? (
@@ -41,7 +41,15 @@ const Header: FC<IHeaderProps> = ({
             <PencilSquareIcon className="w-4 h-4 text-gray-500" />
           </div>)
         : <div></div>}
-    </div>
+      {
+        !isMobile && <div>
+          <p className='text-sm text-gray-500'>
+            Where Your Data Speaks Oil & Gas
+          </p>
+        </div>
+      }
+
+    </div >
   )
 }
 

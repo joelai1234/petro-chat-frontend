@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import produce, { setAutoFreeze } from 'immer'
 import { useBoolean, useGetState } from 'ahooks'
 import { cn } from '../lib/utils'
+import defaultConversationItems from '../data/conversactions'
 import useConversation from '@/hooks/use-conversation'
 import Toast from '@/app/components/base/toast'
 import Sidebar from '@/app/components/sidebar'
@@ -53,7 +54,7 @@ const Main: FC<IMainProps> = () => {
 
   useEffect(() => {
     if (APP_INFO?.title)
-      document.title = `${APP_INFO.title} - Powered by Dify`
+      document.title = `${APP_INFO.title}`
   }, [APP_INFO?.title])
 
   // onData change thought (the produce obj). https://github.com/immerjs/immer/issues/576
@@ -615,9 +616,17 @@ const Main: FC<IMainProps> = () => {
       <Sidebar
         isMobile={!!previewHtml || isMobile}
         list={conversationList}
+        defaultList={defaultConversationItems}
         onCurrentIdChange={handleConversationIdChange}
         currentId={currConversationId}
         copyRight={APP_INFO.copyright || APP_INFO.title}
+        onSend={(message) => {
+          if (!hasSetInputs)
+            handleStartChat({})
+          setTimeout(() => {
+            handleSend(message)
+          }, 0)
+        }}
       />
     )
   }

@@ -8,20 +8,22 @@ import {
 import { ChatBubbleOvalLeftEllipsisIcon as ChatBubbleOvalLeftEllipsisSolidIcon } from '@heroicons/react/24/solid'
 import Button from '@/app/components/base/button'
 // import Card from './card'
-import type { ConversationItem } from '@/types/app'
+import type { ConversationItem, DefaultConversationItem } from '@/types/app'
 
 function classNames(...classes: any[]) {
   return classes.filter(Boolean).join(' ')
 }
 
-const MAX_CONVERSATION_LENTH = 20
+const MAX_CONVERSATION_LENTH = 100
 
 export type ISidebarProps = {
   copyRight: string
   currentId: string
   onCurrentIdChange: (id: string) => void
   list: ConversationItem[]
+  defaultList: DefaultConversationItem[]
   isMobile: boolean
+  onSend?: (message: string) => void
 }
 
 const Sidebar: FC<ISidebarProps> = ({
@@ -29,7 +31,9 @@ const Sidebar: FC<ISidebarProps> = ({
   currentId,
   onCurrentIdChange,
   list,
+  defaultList,
   isMobile,
+  onSend,
 }) => {
   const { t } = useTranslation()
   return (
@@ -50,7 +54,24 @@ const Sidebar: FC<ISidebarProps> = ({
           </Button>
         </div>
       )}
-
+      <nav className="mt-4 space-y-1 bg-white p-4 !pt-0">
+        {defaultList.map((item) => {
+          return (
+            <div key={item.id}
+              className={classNames(
+                'flex items-center px-2 py-2 text-sm font-medium text-gray-700 rounded-md cursor-pointer group hover:bg-gray-100 hover:text-gray-700',
+              )}
+              onClick={() => onSend?.(item.value)}
+            >
+              <div className='flex-shrink-0 mr-3'>
+                {item.icon}
+              </div>
+              {item.name}
+            </div>
+          )
+        })}
+      </nav>
+      <div className='h-px bg-gray-200 shrink-0' />
       <nav className="mt-4 flex-1 space-y-1 bg-white p-4 !pt-0">
         {list.map((item) => {
           const isCurrent = item.id === currentId

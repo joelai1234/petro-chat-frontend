@@ -25,22 +25,17 @@ async function getBrowser() {
 export async function POST(req: Request) {
   try {
     const { html } = await req.json()
-    console.log('isDev', isDev)
     if (!html)
       return NextResponse.json({ error: 'HTML content is required' }, { status: 400 })
-    console.log('start')
 
     const browser = await getBrowser()
 
-    console.log('browser')
     const page = await browser.newPage()
-    console.log('page')
 
     // Set content and wait for network idle to ensure all resources are loaded
     await page.setContent(html, {
       waitUntil: 'networkidle0',
     })
-    console.log('set content')
     // Generate PDF with better quality settings
     const pdf = await page.pdf({
       format: 'A4',
@@ -52,9 +47,7 @@ export async function POST(req: Request) {
         left: '20px',
       },
     })
-    console.log('pdf')
     await browser.close()
-    console.log(pdf)
 
     // Return PDF as base64 with proper encoding
     const base64Pdf = Buffer.from(pdf).toString('base64')

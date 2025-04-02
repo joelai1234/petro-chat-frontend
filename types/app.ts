@@ -95,6 +95,13 @@ export type ChatItem = IChatItem & {
 
 export type ResponseHolder = {}
 
+export type DefaultConversationItem = {
+  id: string
+  name: string
+  icon: React.ReactNode
+  value: string
+}
+
 export type ConversationItem = {
   id: string
   name: string

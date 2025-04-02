@@ -18,6 +18,7 @@ import WorkflowProcess from '@/app/components/workflow/workflow-process'
 import { Markdown } from '@/app/components/base/markdown'
 import type { Emoji } from '@/types/tools'
 import { isHtmlString } from '@/utils/tools'
+import { getFormTemplateFromUrl } from '@/utils/formTemplate'
 
 const OperationBtn = ({ innerContent, onClick, className }: { innerContent: React.ReactNode; onClick?: () => void; className?: string }) => (
   <div
@@ -258,7 +259,9 @@ const Answer: FC<IAnswerProps> = ({
                 )}
             </Button>
             <Button className="flex gap-2 items-center text-sm text-gray-900 bg-white"
-              onClick={() => onPreview?.(content)}
+              onClick={() => onPreview?.(
+                getFormTemplateFromUrl(item.content) || '',
+              )}
             >
               <EyeIcon className="w-5 h-5" />
               <span>Preview</span>

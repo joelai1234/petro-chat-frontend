@@ -32,8 +32,7 @@ export const getFormTemplate = (formName: string, data: any) => {
       } as Form714Data
       template = form714Template
       break
-
-    default: // Form 6Q is the default case
+    case '6q':
       defaultValues = {
         respondent_exact_legal_name: '',
         year_period_report: '',
@@ -47,6 +46,8 @@ export const getFormTemplate = (formName: string, data: any) => {
       } as Form6QData
       template = form6QTemplate
       break
+    default:
+      return null
   }
 
   // Merge default values with provided search params
